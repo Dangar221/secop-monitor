@@ -39,4 +39,6 @@ KEYWORDS = [
 ]
 
 # Email
-EMAIL_DESTINATARIOS = []
+EMAIL_DESTINATARIOS = ["secop@estadox.com"]
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587

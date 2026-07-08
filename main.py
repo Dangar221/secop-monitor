@@ -6,6 +6,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from monitor.secop_client import obtener_procesos
 from filters.keywords import filtrar_y_ordenar
 from database.tracker import inicializar, filtrar_nuevos, marcar_todos_vistos
+from notifications.email_service import enviar_alerta
+from config.config import EMAIL_DESTINATARIOS
 
 
 def correr_monitor():
@@ -40,8 +42,15 @@ def correr_monitor():
         print(f"Valor         : ${int(p.get('precio_base', 0)):,}")
         print(f"URL           : {p.get('urlproceso', {}).get('url')}")
 
+    try:
+        enviar_alerta(nuevos_con_puntaje, EMAIL_DESTINATARIOS)
+        print(f"\nCorreo enviado a: {', '.join(EMAIL_DESTINATARIOS)}")
+    except Exception as e:
+        print(f"\nERROR enviando correo: {e}")
+        return
+
     marcar_todos_vistos(nuevos)
-    print(f"\n{len(nuevos)} procesos marcados como vistos.")
+    print(f"{len(nuevos)} procesos marcados como vistos.")
 
 
 if __name__ == "__main__":
