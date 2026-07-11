@@ -1,7 +1,7 @@
 import os
 import smtplib
 import sys
-from datetime import date
+from datetime import date, datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -16,12 +16,32 @@ COLOR_PRIORIDAD = {
 }
 
 
+def _formatear_cierre(proceso):
+    crudo = proceso.get("fecha_de_recepcion_de")
+    if not crudo:
+        return "Sin fecha", "#999", False
+
+    fecha = datetime.fromisoformat(crudo.replace("Z", "+00:00")).date()
+    dias_restantes = (fecha - date.today()).days
+    texto = fecha.strftime("%d/%m/%Y")
+
+    if dias_restantes < 0:
+        return texto, "#999", False
+    if dias_restantes <= 3:
+        return texto, "#c0392b", True
+    if dias_restantes <= 7:
+        return texto, "#e67e22", False
+    return texto, "#222", False
+
+
 def _fila_html(resultado):
     proceso = resultado["proceso"]
     color = COLOR_PRIORIDAD.get(resultado["prioridad"], "#333")
     valor = int(proceso.get("precio_base") or 0)
     url = (proceso.get("urlproceso") or {}).get("url", "#")
     descripcion = (proceso.get("descripci_n_del_procedimiento") or "")[:150]
+    cierre_texto, cierre_color, urgente = _formatear_cierre(proceso)
+    cierre_html = f"{cierre_texto} ⚠" if urgente else cierre_texto
 
     return f"""
     <tr>
@@ -30,6 +50,7 @@ def _fila_html(resultado):
         <td style="padding:8px;border-bottom:1px solid #ddd;">{descripcion}</td>
         <td style="padding:8px;border-bottom:1px solid #ddd;">{', '.join(resultado['coincidencias'])}</td>
         <td style="padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">${valor:,}</td>
+        <td style="padding:8px;border-bottom:1px solid #ddd;font-weight:bold;color:{cierre_color};white-space:nowrap;">{cierre_html}</td>
         <td style="padding:8px;border-bottom:1px solid #ddd;"><a href="{url}">Ver proceso</a></td>
     </tr>"""
 
@@ -49,6 +70,7 @@ def construir_html(nuevos_con_puntaje):
                 <th style="padding:8px;">Descripci&oacute;n</th>
                 <th style="padding:8px;">Coincidencias</th>
                 <th style="padding:8px;">Valor</th>
+                <th style="padding:8px;">Fecha l&iacute;mite</th>
                 <th style="padding:8px;">Enlace</th>
             </tr>
             {filas}
