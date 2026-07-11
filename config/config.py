@@ -40,6 +40,6 @@ KEYWORDS = [
 ]
 
 # Email
-EMAIL_DESTINATARIOS = ["secop@estadox.com"]
+EMAIL_DESTINATARIOS = ["dannav@estadox.com"]
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
