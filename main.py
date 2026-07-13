@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from monitor.secop_client import obtener_procesos
 from filters.keywords import filtrar_y_ordenar
 from database.tracker import inicializar, filtrar_nuevos, marcar_todos_vistos
-from notifications.email_service import enviar_alerta
+from notifications.email_service import enviar_alerta, enviar_sin_novedades
 from config.config import EMAIL_DESTINATARIOS
 
 
@@ -28,6 +28,11 @@ def correr_monitor():
 
     if not nuevos:
         print("\nSin procesos nuevos.")
+        try:
+            enviar_sin_novedades(EMAIL_DESTINATARIOS, len(relevantes))
+            print(f"Correo (sin novedades) enviado a: {', '.join(EMAIL_DESTINATARIOS)}")
+        except Exception as e:
+            print(f"ERROR enviando correo: {e}")
         return
 
     ids_nuevos = {p.get("id_del_proceso") for p in nuevos}

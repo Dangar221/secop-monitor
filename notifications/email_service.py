@@ -80,7 +80,20 @@ def construir_html(nuevos_con_puntaje):
     """
 
 
-def enviar_alerta(nuevos_con_puntaje, destinatarios):
+def construir_html_sin_novedades(total_relevantes):
+    hoy = date.today().strftime("%d/%m/%Y")
+    return f"""
+    <html>
+    <body style="font-family:Arial,Helvetica,sans-serif;color:#222;">
+        <h2>SECOP II &mdash; Sin procesos nuevos ({hoy})</h2>
+        <p>Hoy no se encontraron procesos nuevos de tecnolog&iacute;a / IA en SECOP II.</p>
+        <p style="color:#666;font-size:13px;">Se revisaron {total_relevantes} procesos relevantes en total; ninguno era nuevo desde el &uacute;ltimo aviso.</p>
+    </body>
+    </html>
+    """
+
+
+def _enviar(asunto, cuerpo_html, destinatarios):
     remitente = os.environ.get("EMAIL_USER")
     app_password = os.environ.get("EMAIL_APP_PASSWORD")
 
@@ -90,12 +103,22 @@ def enviar_alerta(nuevos_con_puntaje, destinatarios):
         )
 
     mensaje = MIMEMultipart("alternative")
-    mensaje["Subject"] = f"SECOP II: {len(nuevos_con_puntaje)} procesos nuevos - {date.today().strftime('%d/%m/%Y')}"
+    mensaje["Subject"] = asunto
     mensaje["From"] = remitente
     mensaje["To"] = ", ".join(destinatarios)
-    mensaje.attach(MIMEText(construir_html(nuevos_con_puntaje), "html"))
+    mensaje.attach(MIMEText(cuerpo_html, "html"))
 
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
         server.starttls()
         server.login(remitente, app_password)
         server.sendmail(remitente, destinatarios, mensaje.as_string())
+
+
+def enviar_alerta(nuevos_con_puntaje, destinatarios):
+    asunto = f"SECOP II: {len(nuevos_con_puntaje)} procesos nuevos - {date.today().strftime('%d/%m/%Y')}"
+    _enviar(asunto, construir_html(nuevos_con_puntaje), destinatarios)
+
+
+def enviar_sin_novedades(destinatarios, total_relevantes):
+    asunto = f"SECOP II: sin procesos nuevos - {date.today().strftime('%d/%m/%Y')}"
+    _enviar(asunto, construir_html_sin_novedades(total_relevantes), destinatarios)
