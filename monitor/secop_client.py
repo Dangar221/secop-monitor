@@ -1,7 +1,8 @@
 import requests
 import sys, os
+from datetime import date, timedelta
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from config.config import API_URL, LIMITE_PROCESOS, ESTADOS_ACTIVOS
+from config.config import API_URL, LIMITE_PROCESOS, ESTADOS_ACTIVOS, DIAS_HACIA_ATRAS
 
 def obtener_procesos():
     # Construir filtro de estados con SoQL
@@ -9,12 +10,17 @@ def obtener_procesos():
         [f"estado_resumen='{e}'" for e in ESTADOS_ACTIVOS]
     )
 
-    # id_del_proceso se ordena como texto, no como número: un ID de 8 dígitos
-    # ("10347391") queda por detrás de uno de 7 ("9999999") al ordenar DESC,
-    # así que nunca se veían los procesos realmente recientes. Se ordena por
-    # fecha de publicación real en su lugar, excluyendo nulos (si no, Postgres
-    # pone los nulos primero en un ORDER BY ... DESC).
-    where = f"({estados_filtro}) AND fecha_de_publicacion_del IS NOT NULL"
+    # El filtro de estados por sí solo matchea millones de registros históricos
+    # (no solo los activos hoy), así que se acota a los últimos días. También
+    # evita el problema de que id_del_proceso se ordena como texto, no número:
+    # un ID de 8 dígitos ("10347391") queda por detrás de uno de 7 ("9999999")
+    # en un ORDER BY DESC, así que ordenar por fecha real es lo correcto.
+    desde = (date.today() - timedelta(days=DIAS_HACIA_ATRAS)).isoformat()
+    where = (
+        f"({estados_filtro}) "
+        f"AND fecha_de_publicacion_del >= '{desde}' "
+        "AND fecha_de_publicacion_del IS NOT NULL"
+    )
 
     params = {
         "$limit": LIMITE_PROCESOS,

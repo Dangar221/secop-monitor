@@ -1,6 +1,7 @@
 # API
 API_URL = "https://www.datos.gov.co/resource/p6dx-8zbt.json"
 LIMITE_PROCESOS = 500
+DIAS_HACIA_ATRAS = 3
 
 # Filtros
 ESTADOS_ACTIVOS = [
