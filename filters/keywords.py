@@ -1,6 +1,15 @@
 import sys, os
+from datetime import date, datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from config.config import KEYWORDS
+
+
+def esta_vigente(proceso):
+    crudo = proceso.get("fecha_de_recepcion_de")
+    if not crudo:
+        return True
+    fecha_limite = datetime.fromisoformat(crudo.replace("Z", "+00:00")).date()
+    return fecha_limite >= date.today()
 
 
 def get_prioridad(puntaje):
@@ -34,7 +43,7 @@ def filtrar_y_ordenar(procesos):
     resultados = []
     for p in procesos:
         puntaje, coincidencias = calcular_puntaje(p)
-        if puntaje > 0:
+        if puntaje > 0 and esta_vigente(p):
             resultados.append({
                 "proceso": p,
                 "puntaje": puntaje,
