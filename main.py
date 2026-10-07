@@ -47,7 +47,7 @@ def correr_monitor():
         print(f"Entidad       : {p.get('entidad')}")
         print(f"Estado        : {p.get('estado_resumen')}")
         print(f"Desc          : {p.get('descripci_n_del_procedimiento', '')[:120]}")
-        print(f"Valor         : ${int(p.get('precio_base', 0)):,}")
+        print(f"Valor         : ${int(p.get('precio_base') or 0):,}")
         print(f"Cierre        : {p.get('fecha_de_recepcion_de') or 'Sin fecha'}")
         print(f"URL           : {p.get('urlproceso', {}).get('url')}")
 

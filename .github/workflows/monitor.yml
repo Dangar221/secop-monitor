@@ -2,7 +2,7 @@ name: Monitor SECOP II
 
 on:
   schedule:
-    - cron: "7 9 * * *"  # 4:07 a.m. hora Colombia (UTC-5) - colchón de ~2h53min contra retrasos del scheduler de GitHub
+    - cron: "50 11 * * *"  # 6:50 a.m. hora Colombia (UTC-5); apunta a que el correo llegue cerca de las 7:00 a.m., porque el scheduler de GitHub suele retrasar los runs unos minutos
   workflow_dispatch:
 
 permissions:

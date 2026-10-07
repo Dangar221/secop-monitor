@@ -2,6 +2,8 @@
 API_URL = "https://www.datos.gov.co/resource/p6dx-8zbt.json"
 LIMITE_PROCESOS = 500
 DIAS_HACIA_ATRAS = 7
+INTENTOS_API = 3
+ESPERA_ENTRE_INTENTOS = 10  # segundos; se multiplica por el número de intento
 
 # Filtros
 ESTADOS_ACTIVOS = [
@@ -41,6 +43,11 @@ KEYWORDS = [
 ]
 
 # Email
-EMAIL_DESTINATARIOS = ["dannav@estadox.com", "daniela@estadox.com", "secop@estadox.com"]
+EMAIL_DESTINATARIOS = [
+    "dannav@estadox.com",
+    "daniela@estadox.com",
+    "secop@estadox.com",
+    "gerencia@licitacontati.com",  # Tatiana
+]
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
